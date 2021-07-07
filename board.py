@@ -1,78 +1,48 @@
-from typing import Tuple
-
+from typing import List, Literal
 import blessed
 from blessed.keyboard import Keystroke
 
+from utils import Vec
 
-class Vec:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+import logging
 
-    def __iter__(self):
-        return iter((self.x, self.y))
+logging.basicConfig(filename="logs/debug.log", level=logging.DEBUG)
 
-    def __add__(self, other):
-        if isinstance(other, Vec):
-            return Vec(self.x + other.x, self.y + other.y)
-        elif isinstance(other, int):
-            return Vec(self.x + other, self.y + other)
-        elif (
-            isinstance(other, Tuple)
-            and isinstance(other[0], int)
-            and isinstance(other[1], int)
-        ):
-            return Vec(self.x + other[0], self.y + other[1])
+
+class Cursor:
+    def __init__(self):
+        self.cursor = "C"
+        self.cell = [0, 0]
+        self.cell_loc = [[Vec(0, 0) for _ in range(3)] for _ in range(3)]
+        for i in range(3):
+            for j in range(3):
+                self.cell_loc[i][j] = start_pos + cell_size * (i, j) + (i + 1, j + 1)
+        self.current_screen_loc = self.cell_loc[self.cell[0]][self.cell[1]]
+        self.old_screen_loc = None
+
+    def update(self, direction: Literal["UP", "DOWN", "LEFT", "RIGHT"]):
+        new_cell = self.cell[:]
+        if direction == "UP":
+            new_cell[1] -= 1
+        elif direction == "DOWN":
+            new_cell[1] += 1
+        elif direction == "LEFT":
+            new_cell[0] -= 1
         else:
-            raise ValueError(f"Can not add Position with {type(other)}")
+            new_cell[0] += 1
 
-    def __sub__(self, other):
-        if isinstance(other, Vec):
-            return Vec(self.x - other.x, self.y - other.y)
-        elif isinstance(other, int):
-            return Vec(self.x - other, self.y - other)
-        elif (
-            isinstance(other, Tuple)
-            and isinstance(other[0], int)
-            and isinstance(other[1], int)
-        ):
-            return Vec(self.x - other[0], self.y - other[1])
+        if (new_cell[0] in (0, 1, 2)) and (new_cell[1] in (0, 1, 2)):
+            self.cell = new_cell
+            self.old_screen_loc = self.current_screen_loc
+            self.current_screen_loc = self.cell_loc[self.cell[0]][self.cell[1]]
+            print(
+                term.move_xy(*self.old_screen_loc)
+                + " "
+                + term.move_xy(*self.current_screen_loc)
+                + self.cursor,
+            )
         else:
-            raise ValueError(f"Can not add Position with {type(other)}")
-
-    def __truediv__(self, other):
-        if isinstance(other, Vec):
-            return Vec(self.x // other.x, self.y // other.y)
-        elif isinstance(other, int):
-            return Vec(self.x // other, self.y // other)
-        elif (
-            isinstance(other, Tuple)
-            and isinstance(other[0], int)
-            and isinstance(other[1], int)
-        ):
-            return Vec(self.x // other[0], self.y // other[1])
-        else:
-            raise ValueError(f"Can not add Position with {type(other)}")
-
-    def __floordiv__(self, other):
-        return self.__truediv__(self, other)
-
-    def __mul__(self, other):
-        if isinstance(other, Vec):
-            return Vec(self.x * other.x, self.y * other.y)
-        elif isinstance(other, int):
-            return Vec(self.x * other, self.y * other)
-        elif (
-            isinstance(other, Tuple)
-            and isinstance(other[0], int)
-            and isinstance(other[1], int)
-        ):
-            return Vec(self.x * other[0], self.y * other[1])
-        else:
-            raise ValueError(f"Can not add Position with {type(other)}")
-
-    def __repr__(self) -> str:
-        return f"Position({self.x}, {self.y})"
+            return
 
 
 strokes = "│ ─ ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘"
@@ -80,39 +50,43 @@ term = blessed.Terminal()
 
 window_size = Vec(term.width, term.height)
 board_size = Vec(40, 16)
+start_pos = (window_size - board_size) / 2
+cell_size = (board_size - 4) / 3
 
 
-def draw_board(shape: Vec):
-    start_pos = (window_size - shape) / 2
+def draw_board():
+    global board_size, start_pos
     board = term.clear
-    cell_size = (shape - 4) / 3
     top_rule = "┌" + "┬".join("─" * cell_size.x for _ in range(3)) + "┐"
     mid_rule = "├" + "┼".join("─" * cell_size.x for _ in range(3)) + "┤"
     bottom_rule = "└" + "┴".join("─" * cell_size.x for _ in range(3)) + "┘"
     rules = [top_rule, mid_rule, mid_rule, bottom_rule]
 
-    for row in range(shape.y):
-        cur_pos = start_pos + (0, row)
-        board += term.move_xy(*cur_pos)  # type: ignore
+    for row in range(board_size.y):
+        draw_from = start_pos + (0, row)
+        board += term.move_xy(*draw_from)  # type: ignore
         if row % (cell_size.y + 1) == 0:
             board += rules[row // cell_size.y]
             continue
-        board += "│" +"│".join(term.move_right(cell_size.x) for _ in range(3)) + "│"  # type: ignore
+        board += "│" + "│".join(term.move_right(cell_size.x) for _ in range(3)) + "│"  # type: ignore
 
     print(board)
 
 
-def refresh(val: Keystroke):
+def refresh(val: Keystroke, cursor: Cursor):
     if val.is_sequence:
-        print("got sequence: {0}.".format((str(val), val.name, val.code)))
+        name = val.name
+        if name[4:] in ("UP", "DOWN", "LEFT", "RIGHT"):
+            cursor.update(val.name[4:])  # type: ignore
 
 
-print("press 'q' to quit.")
 print(f"{term.home}{term.black_on_skyblue}{term.clear}")
-draw_board(board_size)
+cursor = Cursor()
 with term.cbreak():
+    draw_board()
+    cursor.update("UP")
     val = ""
     while val.lower() != "q":
         val = term.inkey(timeout=3)
-        refresh(val)
-    print(f"bye!{term.normal}")
+        refresh(val, cursor)
+    print(f"bye!{term.normal}{term.clear}")
