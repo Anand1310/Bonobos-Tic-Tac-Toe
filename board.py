@@ -2,6 +2,8 @@ from typing import Tuple
 
 import blessed
 from blessed.keyboard import Keystroke
+import time  
+import tictactoe
 
 # I ended up writing this class which has no use except for point.x and point.y
 # you can also do arithmatics with these points but same can be done with numpy
@@ -104,6 +106,11 @@ def draw_board(shape: Vec):
 
     print(board)
 
+def update_board(board):
+    for i in board:
+        #TODO change later after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553553
+        print(i)
+
 # Things to do at each frame
 def refresh(val: Keystroke):
     if val.is_sequence:
@@ -115,10 +122,29 @@ print("press 'q' to quit.")
 print(f"{term.home}{term.black_on_skyblue}{term.clear}") # clear screen
 draw_board(board_size)
 
+board = tictactoe.initial_state()
 # main event loop
 with term.cbreak():
-    val = ""
-    while val.lower() != "q":
+    val = ''
+    while val.lower() != 'q' and not tictactoe.terminal(board):
         val = term.inkey(timeout=3)
-        refresh(val)
+        #TODO change input method after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553566
+        if val.isnumeric():
+            if int(val) in list(range(1, 10)):
+
+                # Player
+                import math
+                x = math.ceil(int(val) / 3) - 1
+                move = (x, int(val) - 3 * x - 1)
+                if move in tictactoe.actions(board):
+                    board = tictactoe.move(move)
+                    update_board(board)
+
+                    # bot
+                    board = tictactoe.move(tictactoe.minimax(board))
+                    print("bot is thinking...")
+                    time.sleep(5)
+                    update_board(board)
+    print(term.blink((term.underline_bold_black_on_yellow(f"The winner is ......{tictactoe.winner(board)}"))))
     print(f"bye!{term.normal}")
+
