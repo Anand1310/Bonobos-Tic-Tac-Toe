@@ -3,7 +3,6 @@ import numpy as np  # im using numpy, as its fast. you could also use normal lis
 import time
 import atexit
 
-atexit.register(lambda: time.sleep(5) or print(term.height))
 pos_X = []  # contains all the positions of X
 pos_O = []  # contains all the positions of O
 
