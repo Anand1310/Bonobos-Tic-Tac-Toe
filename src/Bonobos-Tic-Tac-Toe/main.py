@@ -9,7 +9,7 @@ pos_O = []  # contains all the positions of O
 
 # initialising the frame and terminal. and setting our frame size to termnal size
 term = blessed.Terminal()
-frame = np.array([[""] * term.width] * term.height)
+frame = np.array([[False] * term.width] * term.height)
 
 # the size btw the lines
 
@@ -19,7 +19,7 @@ def draw_frame(term, frame):  # see the documentation of numpy for np.where
     r = term.clear
     for y, x in zip(ys, xs):
         r = r + term.move_xy(int(x), int(y)) + "█"
-        frame[int(y), int(x)] = ""
+        frame[int(y), int(x)] = False
     print(r, end="")
     return frame, term
 
