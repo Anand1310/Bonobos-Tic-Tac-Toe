@@ -1,7 +1,7 @@
 from typing import List, Literal
 import blessed
 from blessed.keyboard import Keystroke
-import time  
+import time
 import tictactoe
 
 from utils import Vec
@@ -48,7 +48,7 @@ class Cursor:
 
 
 # This characters have been used to create the table"
-strokes = "│ ─ ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘" 
+strokes = "│ ─ ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘"
 term = blessed.Terminal()
 
 # getting the window size and and board size
@@ -79,7 +79,7 @@ def draw_board():
 
 def update_board(board):
     for i in board:
-        #TODO change later after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553553
+        # TODO change later after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553553
         print(i)
 
 
@@ -88,7 +88,12 @@ def refresh(val: Keystroke, cursor: Cursor):
         name = val.name
         if name[4:] in ("UP", "DOWN", "LEFT", "RIGHT"):
             cursor.update(val.name[4:])  # type: ignore
-
+            return False
+    elif str(val) == " ":
+        x, y = cursor.cell
+        val = y * 3 + x + 1
+        return val
+    return False
 
 
 board = tictactoe.initial_state()
@@ -98,16 +103,19 @@ cursor = Cursor()
 with term.cbreak():
     draw_board()
     cursor.update("UP")
-    val = ''
-    while val.lower() != 'q' and not tictactoe.terminal(board):
+    val = ""
+    while val.lower() != "q" and not tictactoe.terminal(board):
         val = term.inkey(timeout=3)
-        refresh(val, cursor)
-        #TODO change input method after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553566
-        if val.isnumeric():
-            if int(val) in list(range(1, 10)):
+        player_move = refresh(val, cursor)
+        # TODO change input method after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553566
+        if val.isnumeric() or player_move:
+            if player_move:
+                val = str(player_move)
 
+            if int(val) in list(range(1, 10)):
                 # Player
                 import math
+
                 x = math.ceil(int(val) / 3) - 1
                 move = (x, int(val) - 3 * x - 1)
                 if move in tictactoe.actions(board):
@@ -119,6 +127,13 @@ with term.cbreak():
                     print("bot is thinking...")
                     time.sleep(5)
                     update_board(board)
-    print(term.blink((term.underline_bold_black_on_yellow(f"The winner is ......{tictactoe.winner(board)}"))))
+    print(
+        term.blink(
+            (
+                term.underline_bold_black_on_yellow(
+                    f"The winner is ......{tictactoe.winner(board)}"
+                )
+            )
+        )
+    )
     print(f"bye!{term.normal}")
-
