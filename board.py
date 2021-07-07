@@ -1,6 +1,8 @@
 from typing import List, Literal
 import blessed
 from blessed.keyboard import Keystroke
+import time  
+import tictactoe
 
 from utils import Vec
 
@@ -75,6 +77,12 @@ def draw_board():
     print(board)
 
 
+def update_board(board):
+    for i in board:
+        #TODO change later after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553553
+        print(i)
+
+
 def refresh(val: Keystroke, cursor: Cursor):
     if val.is_sequence:
         name = val.name
@@ -82,13 +90,35 @@ def refresh(val: Keystroke, cursor: Cursor):
             cursor.update(val.name[4:])  # type: ignore
 
 
+
+board = tictactoe.initial_state()
 print(f"{term.home}{term.black_on_skyblue}{term.clear}")
 cursor = Cursor()
+# main event loop
 with term.cbreak():
     draw_board()
     cursor.update("UP")
-    val = ""
-    while val.lower() != "q":
+    val = ''
+    while val.lower() != 'q' and not tictactoe.terminal(board):
         val = term.inkey(timeout=3)
         refresh(val, cursor)
-    print(f"bye!{term.normal}{term.clear}")
+        #TODO change input method after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553566
+        if val.isnumeric():
+            if int(val) in list(range(1, 10)):
+
+                # Player
+                import math
+                x = math.ceil(int(val) / 3) - 1
+                move = (x, int(val) - 3 * x - 1)
+                if move in tictactoe.actions(board):
+                    board = tictactoe.move(move)
+                    update_board(board)
+
+                    # bot
+                    board = tictactoe.move(tictactoe.minimax(board))
+                    print("bot is thinking...")
+                    time.sleep(5)
+                    update_board(board)
+    print(term.blink((term.underline_bold_black_on_yellow(f"The winner is ......{tictactoe.winner(board)}"))))
+    print(f"bye!{term.normal}")
+
