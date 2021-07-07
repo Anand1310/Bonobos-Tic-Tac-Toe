@@ -45,9 +45,11 @@ class Cursor:
             return
 
 
-strokes = "│ ─ ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘"
+# This characters have been used to create the table"
+strokes = "│ ─ ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘" 
 term = blessed.Terminal()
 
+# getting the window size and and board size
 window_size = Vec(term.width, term.height)
 board_size = Vec(40, 16)
 start_pos = (window_size - board_size) / 2
