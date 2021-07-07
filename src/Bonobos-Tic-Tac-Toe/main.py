@@ -16,7 +16,7 @@ frame = np.array([[""] * term.width] * term.height)
 
 
 def draw_frame(term, frame):  # see the documentation of numpy for np.where
-    ys, xs = np.where(frame == "█")
+    ys, xs = np.where(frame)
     r = term.clear
     for y, x in zip(ys, xs):
         r = r + term.move_xy(int(x), int(y)) + "█"
@@ -29,14 +29,14 @@ def draw_table(frame, X=None, O=None, padding=10):
     size = term.width // 2 - 10
     for i in range(len(frame)):
         if (i > padding // 2) and (i < (term.height - padding // 2)):
-            frame[i][size] = "█"
-            frame[i][term.width - size] = "█"
+            frame[i][size] = True
+            frame[i][term.width - size] = True
     padding = int(padding * term.width / term.height)
     size = (term.height // 2 - 10) * 2
     for j in range(len(frame[size])):
         if (j > padding) and (j < term.width - padding):
-            frame[size][j] = "█"
-            frame[abs(term.height - size)][j] = "█"
+            frame[size][j] = True
+            frame[abs(term.height - size)][j] = True
     draw_frame(term, frame)
 
 
