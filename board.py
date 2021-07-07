@@ -3,7 +3,8 @@ from typing import Tuple
 import blessed
 from blessed.keyboard import Keystroke
 
-
+# I ended up writing this class which has no use except for point.x and point.y
+# you can also do arithmatics with these points but same can be done with numpy
 class Vec:
     def __init__(self, x, y):
         self.x = x
@@ -75,13 +76,15 @@ class Vec:
         return f"Position({self.x}, {self.y})"
 
 
-strokes = "│ ─ ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘"
+# This characters have been used to create the table"
+strokes = "│ ─ ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘" 
 term = blessed.Terminal()
 
+# getting the window size and and board size
 window_size = Vec(term.width, term.height)
 board_size = Vec(40, 16)
 
-
+# actual function that draws the board
 def draw_board(shape: Vec):
     start_pos = (window_size - shape) / 2
     board = term.clear
@@ -101,15 +104,18 @@ def draw_board(shape: Vec):
 
     print(board)
 
-
+# Things to do at each frame
 def refresh(val: Keystroke):
     if val.is_sequence:
+        # no use
         print("got sequence: {0}.".format((str(val), val.name, val.code)))
 
 
 print("press 'q' to quit.")
-print(f"{term.home}{term.black_on_skyblue}{term.clear}")
+print(f"{term.home}{term.black_on_skyblue}{term.clear}") # clear screen
 draw_board(board_size)
+
+# main event loop
 with term.cbreak():
     val = ""
     while val.lower() != "q":
