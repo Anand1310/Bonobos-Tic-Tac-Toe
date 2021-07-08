@@ -7,7 +7,10 @@ CURVE_LOGIC = ((1,1,-1,-1), (1,-1,1,-1))
 
 term = Terminal()
 
-def draw_curve(cx, cy, x, y, fill, logic=CURVE_LOGIC):
+def draw_curve(cx, cy, x, y, fill, logic=CURVE_LOGIC) -> list:
+    """
+    Draws a rotationally symmetrical curve based on curve logic.
+    """
     pixels = []
     for i in range(4):
         coords = (cx+x*logic[0][i], cy+y*logic[1][i])
@@ -15,7 +18,7 @@ def draw_curve(cx, cy, x, y, fill, logic=CURVE_LOGIC):
     return pixels
 
 def draw_circle(coords: Tuple, radius: int,
-                rgb: Tuple=(0,255,0), fill: str="  "):
+                rgb: Tuple=(0,255,0), fill: str="  ") -> None:
     """
     Draws a circle of a given radius at point center_x, center_y.
     Will be painted green if no RGB tuple is given.
