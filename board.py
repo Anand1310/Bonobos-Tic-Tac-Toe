@@ -94,13 +94,13 @@ def update_board(board, cursor:Cursor):
         x_loc = cursor.cell_loc[x[1]][x[0]]
         center_x, center_y = x_loc + cell_size / 2
         draw_circle(coords=(center_x, center_y), radius=cell_size.y//2, rgb=(0,0,0))
-        print(term.on_skyblue)
+        print(term.black)
         
     for x in xs:
         x_loc = cursor.cell_loc[x[1]][x[0]]
         center_x, center_y = x_loc + cell_size / 2
         draw_cross(coords=(center_x, center_y), radius=cell_size.y//2, rgb=(0,0,0))
-        print(term.on_skyblue)
+        print(term.black)
 
 
 
