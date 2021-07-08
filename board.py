@@ -58,7 +58,7 @@ board_size = Vec(40, 16)
 start_pos = (window_size - board_size) / 2
 cell_size = (board_size - 4) / 3
 
-
+# drawing the frame of the board
 def draw_board():
     global board_size, start_pos
     board = term.clear
@@ -78,6 +78,7 @@ def draw_board():
     print(board)
 
 
+# drawing XO should happen here
 def update_board(board):
     for i in board:
         # TODO change later after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553553
@@ -93,6 +94,13 @@ def refresh(val: Keystroke, cursor: Cursor):
     elif str(val) == " ":
         x, y = cursor.cell
         return (y, x)
+
+    elif val.isnumeric() and (int(val) in list(range(1, 10))):
+        import math
+
+        x = math.ceil(int(val) / 3) - 1
+        move = (x, int(val) - 3 * x - 1)
+        return move
     return
 
 
@@ -110,13 +118,13 @@ with term.cbreak():
         # TODO change input method after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553566
         if move in tictactoe.actions(board):
             board = tictactoe.move(move)
-            update_board(board)
+            update_board(board)  # draw board
 
             # bot
             board = tictactoe.move(tictactoe.minimax(board))
             print("bot is thinking...")
             time.sleep(5)
-            update_board(board)
+            update_board(board)  # draw board
     print(
         term.blink(
             (
