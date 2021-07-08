@@ -13,7 +13,7 @@ def draw_curve(cx, cy, x, y, fill, logic=CURVE_LOGIC) -> list:
     """
     pixels = []
     for i in range(4):
-        coords = (cx+x*logic[0][i], cy+y*logic[1][i])
+        coords = (cx + x*logic[0][i], cy + y*logic[1][i])
         pixels.append(f"{term.move_xy(*coords)}{fill}")
     return pixels
 
@@ -32,11 +32,11 @@ def draw_circle(coords: Tuple, radius: int,
     circle.append(term.on_color_rgb(*rgb)) #colour
     circle.extend(draw_curve(cx, cy, radius*2, radius, fill, logic=END_LOGIC))
     while x < y:
-        y = int(sqrt(r2 - x ** 2) + 0.5)
+        y = int(sqrt(r2 - x**2) + 0.5)
         circle.extend(draw_curve(cx, cy, x*2, y, fill))
         x += 1
     while y > 0:
-        x = int(sqrt(r2 - y ** 2) + 0.5)
+        x = int(sqrt(r2 - y**2) + 0.5)
         circle.extend(draw_curve(cx, cy, x*2, y, fill))
         y -= 1
     print("".join(circle))
