@@ -18,7 +18,7 @@ def draw_curve(cx, cy, x, y, fill, logic=CURVE_LOGIC) -> list:
     return pixels
 
 def draw_circle(coords: Tuple, radius: int,
-                rgb: Tuple=(0,255,0), fill: str="  ") -> None:
+                rgb: Tuple=(0,255,0), fill: str="██") -> None:
     """
     Draws a circle of a given radius at point center_x, center_y.
     Will be painted green if no RGB tuple is given.
@@ -29,26 +29,26 @@ def draw_circle(coords: Tuple, radius: int,
     x = 1
     circle = []
 
-    circle.append(term.on_color_rgb(*rgb)) #colour
-    circle.extend(draw_curve(cx, cy, radius*2, radius, fill, logic=END_LOGIC))
+    circle.append(term.color_rgb(*rgb)) #colour
+    circle.extend(draw_curve(*coords, radius*2, radius, fill, logic=END_LOGIC))
     while x < y:
         y = int(sqrt(r2 - x**2) + 0.5)
-        circle.extend(draw_curve(cx, cy, x*2, y, fill))
+        circle.extend(draw_curve(*coords, x*2, y, fill))
         x += 1
     while y > 0:
         x = int(sqrt(r2 - y**2) + 0.5)
-        circle.extend(draw_curve(cx, cy, x*2, y, fill))
+        circle.extend(draw_curve(*coords, x*2, y, fill))
         y -= 1
     print("".join(circle))
 
 def draw_cross(coords: Tuple, radius: int,
-                rgb: Tuple=(0,255,0), fill: str="  ") -> None:
+                rgb: Tuple=(0,255,0), fill: str="██") -> None:
     """
     Draws a cross of a given radius at coords.
     Will be painted green if no RGB tuple is given.
     """
     cross = []
-    cross.append(term.on_color_rgb(*rgb))
+    cross.append(term.color_rgb(*rgb))
     cross.append(f"{term.move_xy(*coords)}{fill}")
     for i in range(1, radius):
         cross.extend(draw_curve(*coords, i*2, i, fill))

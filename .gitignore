@@ -1,15 +1,7 @@
 venv/
-__pycache__
+__pycache__/
 logs/
-# ignore everything
-/*
 # ingore files
 *.pyc
 *.env
 *.log
-# Project file
-/src
-!README.md
-!requirements.txt
-!tictactoe.py
-!board.py

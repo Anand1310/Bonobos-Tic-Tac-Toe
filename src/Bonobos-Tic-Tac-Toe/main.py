@@ -25,11 +25,13 @@ def draw_frame(term, frame):  # see the documentation of numpy for np.where
 
 
 def draw_table(frame, X=None, O=None, padding=10):
+
     size = term.width // 2 - 10
     for i in range(len(frame)):
         if (i > padding // 2) and (i < (term.height - padding // 2)):
             frame[i][size] = True
             frame[i][term.width - size] = True
+
     padding = int(padding * term.width / term.height)
     size = (term.height // 2 - 10) * 2
     for j in range(len(frame[size])):
