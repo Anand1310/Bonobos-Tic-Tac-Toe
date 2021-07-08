@@ -4,11 +4,11 @@ from math import sqrt
 
 term = Terminal()
 
-def draw_curve(center_x, center_y, x, y):
-        print(f"{term.move_xy(center_x+x, center_y+y)} ")
-        print(f"{term.move_xy(center_x+x, center_y-y)} ")
-        print(f"{term.move_xy(center_x-x, center_y+y)} ")
-        print(f"{term.move_xy(center_x-x, center_y-y)} ")
+def draw_curve(center_x, center_y, x, y, fill):
+    print(f"{term.move_xy(center_x+x, center_y+y)}{fill}")
+    print(f"{term.move_xy(center_x+x, center_y-y)}{fill}")
+    print(f"{term.move_xy(center_x-x, center_y+y)}{fill}")
+    print(f"{term.move_xy(center_x-x, center_y-y)}{fill}")
 
 def draw_circle(center_x: int, center_y: int,
                 radius: int, rgb: Tuple=(0,255,0)):
