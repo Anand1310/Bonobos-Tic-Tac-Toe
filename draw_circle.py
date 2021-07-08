@@ -2,41 +2,44 @@ from typing import Tuple
 from blessed import Terminal
 from math import sqrt
 
+END_LOGIC = ((0,0,1,-1), (1,-1,0,0))
+CURVE_LOGIC = ((1,1,-1,-1), (1,-1,1,-1))
+
 term = Terminal()
 
-def draw_curve(center_x, center_y, x, y):
-        print(f"{term.move_xy(center_x+x, center_y+y)} ")
-        print(f"{term.move_xy(center_x+x, center_y-y)} ")
-        print(f"{term.move_xy(center_x-x, center_y+y)} ")
-        print(f"{term.move_xy(center_x-x, center_y-y)} ")
+def draw_curve(cx, cy, x, y, fill, logic=CURVE_LOGIC) -> list:
+    """
+    Draws a rotationally symmetrical curve based on curve logic.
+    """
+    pixels = []
+    for i in range(4):
+        coords = (cx + x*logic[0][i], cy + y*logic[1][i])
+        pixels.append(f"{term.move_xy(*coords)}{fill}")
+    return pixels
 
-def draw_circle(center_x: int, center_y: int,
-                radius: int, rgb: Tuple=(0,255,0)):
+def draw_circle(coords: Tuple, radius: int,
+                rgb: Tuple=(0,255,0), fill: str="  ") -> None:
     """
     Draws a circle of a given radius at point center_x, center_y.
     Will be painted green if no RGB tuple is given.
     """
     r2 = radius ** 2
+    cx, cy = coords
     y = radius
     x = 1
+    circle = []
 
-    print(term.on_color_rgb(*rgb))
-    print(f"{term.move_xy(center_x-1, center_y+radius) }   ")
-    print(f"{term.move_xy(center_x-1, center_y-radius) }   ")
-    print(f"{term.move_xy(center_x+radius*2, center_y) }  ")
-    print(f"{term.move_xy(center_x-radius*2-1, center_y) }  ")
-
+    circle.append(term.on_color_rgb(*rgb)) #colour
+    circle.extend(draw_curve(cx, cy, radius*2, radius, fill, logic=END_LOGIC))
     while x < y:
-        y = int(sqrt(r2 - x ** 2) + 0.5)
-        draw_curve(center_x, center_y, x*2, y)
-        draw_curve(center_x, center_y, x*2+1, y)
+        y = int(sqrt(r2 - x**2) + 0.5)
+        circle.extend(draw_curve(cx, cy, x*2, y, fill))
         x += 1
     while y > 0:
-        x = int(sqrt(r2 - y ** 2) + 0.5)
-        draw_curve(center_x, center_y, x*2, y)
-        draw_curve(center_x, center_y, x*2+1, y)
-
+        x = int(sqrt(r2 - y**2) + 0.5)
+        circle.extend(draw_curve(cx, cy, x*2, y, fill))
         y -= 1
+    print("".join(circle))
 
 def main():
     import atexit
@@ -45,15 +48,15 @@ def main():
     def Goodbye():
         print(term.normal+term.home+term.clear, end="")
 
-    x = 30
-    y = 15
-    radius = 14
+    coords = 30,8
+    radius = 8
 
     print(term.home + term.clear, end='')
     print(f"{term.on_grey} ", end="")
 
+    # draw_circle(coords, radius)
     for i in range(1, radius, 2):
-        draw_circle(x, y, i)
+        draw_circle(coords, i)
 
     with term.cbreak():
         val=""
