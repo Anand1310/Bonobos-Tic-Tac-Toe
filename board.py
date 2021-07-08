@@ -3,11 +3,12 @@ import blessed
 from blessed.keyboard import Keystroke
 import time
 import tictactoe
-
+import os
 from utils import Vec
 
 import logging
-
+if "logs" not in os.listdir():
+    os.mkdir("logs")
 logging.basicConfig(filename="logs/debug.log", level=logging.DEBUG)
 
 
