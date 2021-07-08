@@ -3,8 +3,8 @@ from typing import Tuple
 
 class Vec:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x: int = x
+        self.y: int = y
 
     def __iter__(self):
         return iter((self.x, self.y))

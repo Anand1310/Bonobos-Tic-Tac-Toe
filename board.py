@@ -5,6 +5,7 @@ import time
 import tictactoe
 import os
 from utils import Vec
+from draw_circle import draw_circle, draw_cross
 
 import logging
 if "logs" not in os.listdir():
@@ -14,7 +15,7 @@ logging.basicConfig(filename="logs/debug.log", level=logging.DEBUG)
 
 class Cursor:
     def __init__(self):
-        self.cursor = "C"
+        self.cursor = "->"
         self.cell = [0, 0]
         self.cell_loc = [[Vec(0, 0) for _ in range(3)] for _ in range(3)]
         for i in range(3):
@@ -40,7 +41,7 @@ class Cursor:
             self.current_screen_loc = self.cell_loc[self.cell[0]][self.cell[1]]
             print(
                 term.move_xy(*self.old_screen_loc)
-                + " "
+                + " " * len(self.cursor)
                 + term.move_xy(*self.current_screen_loc)
                 + self.cursor,
             )
@@ -54,7 +55,7 @@ term = blessed.Terminal()
 
 # getting the window size and and board size
 window_size = Vec(term.width, term.height)
-board_size = Vec(40, 16)
+board_size = Vec(43, 19)
 start_pos = (window_size - board_size) / 2
 cell_size = (board_size - 4) / 3
 
@@ -79,10 +80,28 @@ def draw_board():
 
 
 # drawing XO should happen here
-def update_board(board):
-    for i in board:
-        # TODO change later after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553553
-        print(i)
+def update_board(board, cursor:Cursor):
+    xs = []
+    os = []
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == "X":
+                xs.append((i,j))
+            elif board[i][j] == "O":
+                os.append((i,j))
+                
+    for x in os:
+        x_loc = cursor.cell_loc[x[1]][x[0]]
+        center_x, center_y = x_loc + cell_size / 2
+        draw_circle(coords=(center_x, center_y), radius=cell_size.y//2, rgb=(0,0,0))
+        print(term.on_skyblue)
+        
+    for x in xs:
+        x_loc = cursor.cell_loc[x[1]][x[0]]
+        center_x, center_y = x_loc + cell_size / 2
+        draw_cross(coords=(center_x, center_y), radius=cell_size.y//2, rgb=(0,0,0))
+        print(term.on_skyblue)
+
 
 
 def refresh(val: Keystroke, cursor: Cursor):
@@ -114,17 +133,17 @@ with term.cbreak():
     val = ""
     while val.lower() != "q" and not tictactoe.terminal(board):
         val = term.inkey(timeout=3)
+        # user input
         move = refresh(val, cursor)
-        # TODO change input method after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553566
         if move in tictactoe.actions(board):
             board = tictactoe.move(move)
-            update_board(board)  # draw board
+            update_board(board, cursor)  # draw board
 
             # bot
             board = tictactoe.move(tictactoe.minimax(board))
             print("bot is thinking...")
             time.sleep(5)
-            update_board(board)  # draw board
+            update_board(board, cursor)  # draw board
     print(
         term.blink(
             (
