@@ -88,12 +88,11 @@ def refresh(val: Keystroke, cursor: Cursor):
         name = val.name
         if name[4:] in ("UP", "DOWN", "LEFT", "RIGHT"):
             cursor.update(val.name[4:])  # type: ignore
-            return False
+            return
     elif str(val) == " ":
         x, y = cursor.cell
-        val = y * 3 + x + 1
-        return val
-    return False
+        return (y, x)
+    return
 
 
 board = tictactoe.initial_state()
@@ -106,27 +105,17 @@ with term.cbreak():
     val = ""
     while val.lower() != "q" and not tictactoe.terminal(board):
         val = term.inkey(timeout=3)
-        player_move = refresh(val, cursor)
+        move = refresh(val, cursor)
         # TODO change input method after the implement of https://github.com/Anand1310/Bonobos-Tic-Tac-Toe/projects/1#card-64553566
-        if val.isnumeric() or player_move:
-            if player_move:
-                val = str(player_move)
+        if move in tictactoe.actions(board):
+            board = tictactoe.move(move)
+            update_board(board)
 
-            if int(val) in list(range(1, 10)):
-                # Player
-                import math
-
-                x = math.ceil(int(val) / 3) - 1
-                move = (x, int(val) - 3 * x - 1)
-                if move in tictactoe.actions(board):
-                    board = tictactoe.move(move)
-                    update_board(board)
-
-                    # bot
-                    board = tictactoe.move(tictactoe.minimax(board))
-                    print("bot is thinking...")
-                    time.sleep(5)
-                    update_board(board)
+            # bot
+            board = tictactoe.move(tictactoe.minimax(board))
+            print("bot is thinking...")
+            time.sleep(5)
+            update_board(board)
     print(
         term.blink(
             (
