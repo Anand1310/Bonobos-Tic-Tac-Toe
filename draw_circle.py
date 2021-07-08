@@ -41,6 +41,19 @@ def draw_circle(coords: Tuple, radius: int,
         y -= 1
     print("".join(circle))
 
+def draw_cross(coords: Tuple, radius: int,
+                rgb: Tuple=(0,255,0), fill: str="  ") -> None:
+    """
+    Draws a cross of a given radius at coords.
+    Will be painted green if no RGB tuple is given.
+    """
+    cross = []
+    cross.append(term.on_color_rgb(*rgb))
+    cross.append(f"{term.move_xy(*coords)}{fill}")
+    for i in range(1, radius):
+        cross.extend(draw_curve(*coords, i*2, i, fill))
+    print("".join(cross))
+
 def main():
     import atexit
 
@@ -48,16 +61,20 @@ def main():
     def Goodbye():
         print(term.normal+term.home+term.clear, end="")
 
-    coords = 30,8
+    coords = 20,10
     radius = 8
 
     print(term.home + term.clear, end='')
     print(f"{term.on_grey} ", end="")
+    rgb = [(255,0,0),(0,255,0)]
+    draw_circle(coords, radius)
 
-    # draw_circle(coords, radius)
-    for i in range(1, radius, 2):
-        draw_circle(coords, i)
+    for i in range(1, radius+1, 2):
+        draw_circle((60, 10), i)
 
+    for i in range(0, radius+1, 1):
+        draw_circle((100, 10), i, rgb[i%2])
+    draw_cross((20, 28), radius)
     with term.cbreak():
         val=""
         while val.lower() != "q":
