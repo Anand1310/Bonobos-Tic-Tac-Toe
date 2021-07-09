@@ -1,6 +1,7 @@
 venv/
 __pycache__/
 logs/
+.vscode/
 # ingore files
 *.pyc
 *.env
