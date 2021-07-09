@@ -111,16 +111,9 @@ def refresh(val: Keystroke, cursor: Cursor):
         if name[4:] in ("UP", "DOWN", "LEFT", "RIGHT"):
             cursor.update(val.name[4:])  # type: ignore
             return
-    elif str(val) == " ":
+    if str(val) == " " or val.name == "KEY_ENTER":
         x, y = cursor.cell
         return (y, x)
-
-    elif val.isnumeric() and (int(val) in list(range(1, 10))):
-        import math
-
-        x = math.ceil(int(val) / 3) - 1
-        move = (x, int(val) - 3 * x - 1)
-        return move
     return
 
 
@@ -142,8 +135,6 @@ with term.cbreak():
             if not tictactoe.terminal(board):
                 # bot
                 board = tictactoe.move(tictactoe.minimax(board))
-                print("bot is thinking...")
-                time.sleep(5)
                 update_board(board, cursor)  # draw board
     if tictactoe.utility(board) == 0:
         print(
