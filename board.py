@@ -62,7 +62,7 @@ cell_size = (board_size - 4) / 3
 # drawing the frame of the board
 def draw_board():
     global board_size, start_pos
-    board = term.clear
+    init_board = term.clear
     top_rule = "┌" + "┬".join("─" * cell_size.x for _ in range(3)) + "┐"
     mid_rule = "├" + "┼".join("─" * cell_size.x for _ in range(3)) + "┤"
     bottom_rule = "└" + "┴".join("─" * cell_size.x for _ in range(3)) + "┘"
@@ -70,13 +70,14 @@ def draw_board():
 
     for row in range(board_size.y):
         draw_from = start_pos + (0, row)
-        board += term.move_xy(*draw_from)  # type: ignore
+        init_board += term.move_xy(*draw_from)  # type: ignore
         if row % (cell_size.y + 1) == 0:
-            board += rules[row // cell_size.y]
+            init_board += rules[row // cell_size.y]
             continue
-        board += "│" + "│".join(term.move_right(cell_size.x) for _ in range(3)) + "│"  # type: ignore
+        init_board += "│" + "│".join(term.move_right(cell_size.x) for _ in range(3)) + "│"  # type: ignore
 
-    print(board)
+    print(init_board)
+    update_board(board, cursor)
 
 
 # drawing XO should happen here
@@ -138,19 +139,32 @@ with term.cbreak():
         if move in tictactoe.actions(board):
             board = tictactoe.move(move)
             update_board(board, cursor)  # draw board
-
-            # bot
-            board = tictactoe.move(tictactoe.minimax(board))
-            print("bot is thinking...")
-            time.sleep(5)
-            update_board(board, cursor)  # draw board
-    print(
-        term.blink(
-            (
-                term.underline_bold_black_on_yellow(
-                    f"The winner is ......{tictactoe.winner(board)}"
+            if not tictactoe.terminal(board):
+                # bot
+                board = tictactoe.move(tictactoe.minimax(board))
+                print("bot is thinking...")
+                time.sleep(5)
+                update_board(board, cursor)  # draw board
+    if tictactoe.utility(board) == 0:
+        print(
+            term.blink(
+                (   
+                    term.underline_bold_black_on_yellow(
+                        f"Draw!"
+                    )
                 )
             )
         )
-    )
-    print(f"bye!{term.normal}")
+    else:
+        print(
+            term.blink(
+                (   
+                    term.underline_bold_black_on_yellow(
+                        f"The winner is ......{tictactoe.winner(board)}"
+                    )
+                )
+            )
+        )
+    print(f"bye!")
+    time.sleep(5)
+    print(term.normal+term.home+term.clear)
