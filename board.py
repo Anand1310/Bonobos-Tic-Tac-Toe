@@ -8,6 +8,7 @@ from utils import Vec
 from draw_circle import draw_circle, draw_cross
 
 import logging
+
 if "logs" not in os.listdir():
     os.mkdir("logs")
 logging.basicConfig(filename="logs/debug.log", level=logging.DEBUG)
@@ -16,7 +17,7 @@ logging.basicConfig(filename="logs/debug.log", level=logging.DEBUG)
 class Cursor:
     def __init__(self):
         self.cursor = "->"
-        self.cell = [0, 0]
+        self.cell = [0, 1]
         self.cell_loc = [[Vec(0, 0) for _ in range(3)] for _ in range(3)]
         for i in range(3):
             for j in range(3):
@@ -81,28 +82,29 @@ def draw_board():
 
 
 # drawing XO should happen here
-def update_board(board, cursor:Cursor):
+def update_board(board, cursor: Cursor):
     xs = []
     os = []
     for i in range(3):
         for j in range(3):
             if board[i][j] == "X":
-                xs.append((i,j))
+                xs.append((i, j))
             elif board[i][j] == "O":
-                os.append((i,j))
-                
-    for x in os:
-        x_loc = cursor.cell_loc[x[1]][x[0]]
-        center_x, center_y = x_loc + cell_size / 2
-        draw_circle(coords=(center_x, center_y), radius=cell_size.y//2, rgb=(0,0,0))
+                os.append((i, j))
+
+    for o in os:
+        o_loc = cursor.cell_loc[o[1]][o[0]]
+        center_x, center_y = o_loc + cell_size / 2
+        draw_circle(coords=(center_x, center_y), radius=cell_size.y // 2, rgb=(0, 0, 0))
         print(term.black)
-        
+
     for x in xs:
         x_loc = cursor.cell_loc[x[1]][x[0]]
         center_x, center_y = x_loc + cell_size / 2
-        draw_cross(coords=(center_x, center_y), radius=cell_size.y//2, rgb=(0,0,0))
+        draw_cross(
+            coords=(center_x, center_y), radius=cell_size.y // 2 + 1, rgb=(0, 0, 0)
+        )
         print(term.black)
-
 
 
 def refresh(val: Keystroke, cursor: Cursor):
@@ -142,29 +144,29 @@ with term.cbreak():
             if not tictactoe.terminal(board):
                 # bot
                 board = tictactoe.move(tictactoe.minimax(board))
-                print("bot is thinking...")
+                txt = "bot is thinking..."
+                txt_x = (term.width - len(txt)) // 2
+                txt_y = term.height - 2
+                print(term.move_xy(txt_x, txt_y) + txt)
                 time.sleep(5)
                 update_board(board, cursor)  # draw board
+                print(term.move_xy(txt_x, txt_y) + " " * len(txt))
     if tictactoe.utility(board) == 0:
         print(
-            term.blink(
-                (   
-                    term.underline_bold_black_on_yellow(
-                        f"Draw!"
-                    )
-                )
-            )
+            term.move_xy(1, 1)
+            + term.blink((term.underline_bold_black_on_yellow(f"Draw!")))
         )
     else:
         print(
-            term.blink(
-                (   
+            term.move_xy(1, 1)
+            + term.blink(
+                (
                     term.underline_bold_black_on_yellow(
                         f"The winner is ......{tictactoe.winner(board)}"
                     )
                 )
             )
         )
-    print(f"bye!")
+    print(term.move_xy(1, 2) + "bye!")
     time.sleep(5)
-    print(term.normal+term.home+term.clear)
+    print(term.normal + term.home + term.clear)
